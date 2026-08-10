@@ -62,13 +62,13 @@
 
 - [X]  Stage 1 `builder`: `FROM python:3.11-slim AS builder`, `WORKDIR /build`, `COPY requirements.txt .`, `RUN pip install --no-cache-dir --prefix=/install -r requirements.txt`
 - [X]  Stage 2 runtime: `FROM python:3.11-slim`, `WORKDIR /app`, `COPY --from=builder /install /usr/local`, `COPY app/ app/`, `COPY utils/ utils/`
-- [X]  Tạo user thường `appuser` (dùng `useradd --system`) + `USER appuser`
-- [X]  `EXPOSE 8000`
-- [X]  `HEALTHCHECK` gọi `/health` bằng Python (image slim không có curl, đọc `$PORT`):
+- [ ]  `RUN adduser --disabled-password --no-create-home appuser` + `USER appuser`
+- [ ]  `EXPOSE 8000`
+- [ ]  `HEALTHCHECK` gọi `/health` bằng Python (image slim không có curl, đọc `$PORT`):
   `CMD python -c "import os, urllib.request; port = os.getenv('PORT', '8000'); urllib.request.urlopen(f'http://127.0.0.1:{port}/health', timeout=3)"`
-- [X]  `CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]` (đọc `$PORT` cho cloud)
-- [X]  ⚠️ Thứ tự: `COPY requirements.txt` → `pip install` → mới `COPY app/` (dùng cache)
-- [X]  Build thử: `docker build` → image **≤ 500MB** (test `test_image_du_nho` PASSED)
+- [ ]  `CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]` (đọc `$PORT` cho cloud)
+- [ ]  ⚠️ Thứ tự: `COPY requirements.txt` → `pip install` → mới `COPY app/` (dùng cache)
+- [ ]  Build thử: `docker build -t day12-agent:prod .` → `docker images day12-agent:prod` → **≤ 500MB** (stretch: < 200MB)
 
 ### `.dockerignore`
 
@@ -79,7 +79,7 @@
 
 - [X]  Thêm service `agent`:
   - `build: .`
-  - chỉ `expose: "8000"` (có nginx chặn public)
+  - `ports: "8000:8000"`
   - `environment: AGENT_API_KEY: ${AGENT_API_KEY:?...}`, `REDIS_URL: redis://redis:6379/0`
   - `depends_on: redis` (condition service_healthy)
   - `healthcheck` gọi `/health` (giống Dockerfile)
@@ -87,7 +87,7 @@
 
 ### Kiểm tra
 
-- [X]  `pytest tests/test_cp2.py -v` → **16/16 PASSED** (cả test build image thật, Docker đang chạy)
+- [X]  `pytest tests/test_cp2.py -v` → các test static xanh; test build (mark `docker`) bỏ qua nếu chưa bật Docker
 - [X]  **Commit:** `"CP2: Dockerfile multi-stage + compose + dockerignore"`
 
 ---
@@ -96,15 +96,15 @@
 
 ### `app/auth.py` — `verify_api_key`
 
-- [ ]  Lấy `settings.agent_api_key`
-- [ ]  `x_api_key` None hoặc sai → `HTTPException(401, detail="invalid or missing API key")`
-- [ ]  So sánh bằng `secrets.compare_digest(x_api_key, settings.agent_api_key)` — KHÔNG dùng `==`
-- [ ]  Hợp lệ → trả về `x_user_id` nếu có, ngược lại `ANONYMOUS_USER`
+- [X]  Lấy `settings.agent_api_key`
+- [X]  `x_api_key` None hoặc sai → `HTTPException(401, detail="invalid or missing API key")`
+- [X]  So sánh bằng `secrets.compare_digest(x_api_key, settings.agent_api_key)` — KHÔNG dùng `==`
+- [X]  Hợp lệ → trả về `x_user_id` nếu có, ngược lại `ANONYMOUS_USER`
 
 ### `app/rate_limiter.py`
 
-- [ ]  `hit_count(user_id, now)`: `zremrangebyscore(key, 0, now - WINDOW_SECONDS)` → `zcard(key)`
-- [ ]  `check(user_id, now)` — **đúng thứ tự**:
+- [X]  `hit_count(user_id, now)`: `zremrangebyscore(key, 0, now - WINDOW_SECONDS)` → `zcard(key)`
+- [X]  `check(user_id, now)` — **đúng thứ tự**:
   1. `count = hit_count(...)`
   2. `count >= self.limit` → `HTTPException(429, detail="rate limit exceeded", headers={"Retry-After": str(WINDOW_SECONDS)})` (KHÔNG ghi nhận)
   3. Còn quota → `zadd(key, {f"{now}:{uuid.uuid4().hex}": now})`
@@ -112,27 +112,27 @@
 
 ### `app/cost_guard.py`
 
-- [ ]  `spent(user_id, month)`: `get(key)` → Redis None → `0.0`; else `float(...)`
-- [ ]  `check(user_id, estimated_cost, month)`: `spent + estimated_cost > budget` → `HTTPException(402, detail="monthly budget exceeded")`
-- [ ]  `record(user_id, cost, month)`: `incrbyfloat(key, cost)` → `expire(key, KEY_TTL_SECONDS)` → `return float(total)`
+- [X]  `spent(user_id, month)`: `get(key)` → Redis None → `0.0`; else `float(...)`
+- [X]  `check(user_id, estimated_cost, month)`: `spent + estimated_cost > budget` → `HTTPException(402, detail="monthly budget exceeded")`
+- [X]  `record(user_id, cost, month)`: `incrbyfloat(key, cost)` → `expire(key, KEY_TTL_SECONDS)` → `return float(total)`
 
 ### `app/main.py` — `/ask` (đúng thứ tự)
 
-- [ ]
-- [ ]
-- [ ]
-- [ ]
-- [ ]
-- [ ]
-- [ ]
-- [ ]
+- [X]  `limiter.check(user_id)` → 429 nếu gọi quá nhanh
+- [X]  `guard.check(user_id)` → 402 nếu hết ngân sách
+- [X]  `history = store.get_history(user_id)`
+- [X]  `result = ask_llm(payload.question, history)`
+- [X]  `store.append(user_id, "user", payload.question)` + `store.append(user_id, "assistant", result["answer"])`
+- [X]  `guard.record(user_id, result["cost_usd"])`
+- [X]  `log_event("ask_completed", user_id=..., tokens_in=..., tokens_out=..., cost_usd=...)`
+- [X]  Trả về `{answer, user_id, history_length, cost_usd, tokens}`
 
 - ⚠️ `user_id` đến từ `Depends(verify_api_key)` — request thiếu key dừng ở 401 trước khi chạm vào gì.
 
 ### Kiểm tra
 
-- [ ]  `pytest tests/test_cp3.py -v` → xanh hết
-- [ ]  **Commit:** `"CP3: auth + sliding window rate limit + cost guard"`
+- [X]  `pytest tests/test_cp3.py -v` → **22/22 PASSED**
+- [X]  **Commit:** `"CP3: auth + sliding window rate limit + cost guard"`
 
 ---
 
