@@ -165,7 +165,7 @@
 ### Kiểm tra + thử stateless
 
 - [X]  `pytest tests/test_cp4.py -v` → **19/19 PASSED**
-- [ ]  (Điểm cộng) `docker compose up -d --scale agent=3` → gọi `/ask` 5 lần cùng `X-User-Id` qua cổng 8000 → `history_length` tăng 1,2,3,4,5 dù request rơi vào container bất kỳ (chưa chạy — test stateless qua fake_redis đã PASS)
+- [X]  (Điểm cộng) `docker compose up -d --scale agent=3` → gọi `/ask` 5 lần cùng `X-User-Id` qua cổng 8000 → `history_length` tăng qua các container (0,2,4,6,8 — mỗi `/ask` ghi 2 tin user+assistant). Log 3 container đều có `ask_completed` → state nằm ở Redis dùng chung, request phân phối round-robin. ✅ Đã xác nhận bằng Docker thật
 - [X]  **Commit:** `"CP4: state qua Redis + graceful shutdown + /ready"`
 
 ---
