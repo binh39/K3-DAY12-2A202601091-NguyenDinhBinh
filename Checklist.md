@@ -140,33 +140,33 @@
 
 ### `app/store.py`
 
-- [ ]  `ping()`: `try: return self.client.ping() except Exception: return False`
-- [ ]  `append(user_id, role, content)`:
+- [X]  `ping()`: `try: return self.client.ping() except Exception: return False`
+- [X]  `append(user_id, role, content)`:
   - `rpush(key, json.dumps({"role": role, "content": content}, ensure_ascii=False))`
   - `ltrim(key, -HISTORY_MAX_MESSAGES, -1)` (giữ N message gần nhất)
   - `expire(key, HISTORY_TTL_SECONDS)`
-- [ ]  `get_history(user_id)`: `lrange(key, 0, -1)` → `[json.loads(m) for m in ...]`
+- [X]  `get_history(user_id)`: `lrange(key, 0, -1)` → `[json.loads(m) for m in ...]`
 
 ### `app/lifecycle.py`
 
-- [ ]  `request_shutdown(signum, frame)`:
+- [X]  `request_shutdown(signum, frame)`:
   - `self.shutting_down = True`
   - Gọi lại handler cũ: `previous = self._previous.get(signum); if callable(previous): previous(signum, frame)`
-- [ ]  `install()`: với mỗi sig trong `(SIGTERM, SIGINT)`: `self._previous[sig] = signal.getsignal(sig)` rồi `signal.signal(sig, self.request_shutdown)`
+- [X]  `install()`: với mỗi sig trong `(SIGTERM, SIGINT)`: `self._previous[sig] = signal.getsignal(sig)` rồi `signal.signal(sig, self.request_shutdown)`
 
 ### `app/main.py`
 
-- [ ]  `/health`: thêm nhánh `if lifecycle.shutting_down` → 503 (đã làm ở CP1)
-- [ ]  `/ready`:
+- [X]  `/health`: thêm nhánh `if lifecycle.shutting_down` → 503 (đã làm ở CP1)
+- [X]  `/ready`:
   - `lifecycle.shutting_down` → `JSONResponse(503, {"status": "shutting_down"})`
   - `store.ping()` False → `JSONResponse(503, {"status": "not ready", "redis": False})`
   - Ngược lại → `{"status": "ready", "redis": True}`
 
 ### Kiểm tra + thử stateless
 
-- [ ]  `pytest tests/test_cp4.py -v` → xanh hết
-- [ ]  (Điểm cộng) `docker compose up -d --scale agent=3` → gọi `/ask` 5 lần cùng `X-User-Id` qua cổng 8000 → `history_length` tăng 1,2,3,4,5 dù request rơi vào container bất kỳ
-- [ ]  **Commit:** `"CP4: state qua Redis + graceful shutdown + /ready"`
+- [X]  `pytest tests/test_cp4.py -v` → **19/19 PASSED**
+- [ ]  (Điểm cộng) `docker compose up -d --scale agent=3` → gọi `/ask` 5 lần cùng `X-User-Id` qua cổng 8000 → `history_length` tăng 1,2,3,4,5 dù request rơi vào container bất kỳ (chưa chạy — test stateless qua fake_redis đã PASS)
+- [X]  **Commit:** `"CP4: state qua Redis + graceful shutdown + /ready"`
 
 ---
 
