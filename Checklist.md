@@ -202,11 +202,11 @@
 
 ## exercises.md — 10 câu phản ánh (15 điểm)
 
-- [ ]  Trả lời **đủ 10 câu**, thay hết dòng `> *Câu trả lời của bạn*` bằng lời của mình
-- [ ]  Viết dựa trên quan sát thật khi chạy code (không sao chép)
-- [ ]  Nêu họ tên + mã HV ở đầu file
-- [ ]  `grade.py` phải đếm được 10/10 câu đã trả lời
-- [ ]  **Commit:** `"exercises: 10 câu phản ánh"`
+- [X]  Trả lời **đủ 10 câu**, thay hết dòng `> *Câu trả lời của bạn*` bằng lời của mình
+- [X]  Viết dựa trên quan sát thật khi chạy code (không sao chép)
+- [X]  Nêu họ tên + mã HV ở đầu file
+- [X]  `grade.py` phải đếm được 10/10 câu đã trả lời
+- [X]  **Commit:** `"exercises: 10 câu phản ánh"` (đã gộp vào commit bonus)
 
 ---
 
@@ -214,34 +214,37 @@
 
 ### Tạo `.github/workflows/ci.yml` (tự viết)
 
-- [ ]  `name`, `on: [push, pull_request]`
-- [ ]  Job `test`:
+- [X]  `name`, `on: [push, pull_request]`
+- [X]  Job `test`:
   - `actions/checkout@v4` (ghim version, không dùng `@main`)
   - `setup-python` + `pip install -r requirements.txt`
   - Chạy pytest **giới hạn phạm vi** — loại `test_cp5.py` và `test_bonus_cicd.py` (dùng `--ignore` hoặc `--ignore=tests/test_cp5.py`):
     `pytest tests/test_cp1.py tests/test_cp2.py tests/test_cp3.py tests/test_cp4.py --ignore=tests/test_cp5.py --ignore=tests/test_bonus_cicd.py`
   - Truyền env giả: `env: AGENT_API_KEY: ci-dummy`, `REDIS_URL: "fake://"` (khối `env:` cấp job)
-- [ ]  Job `build` (sau test): `docker build` hoặc `docker/build-push-action@v6`
-- [ ]  Job `deploy`:
+- [X]  Job `build` (sau test): `docker build` hoặc `docker/build-push-action@v6`
+- [X]  Job `deploy`:
   - `needs: [test, build]`
   - `if: github.ref == 'refs/heads/main'` (chỉ deploy từ main)
   - Token deploy qua `${{ secrets.<TÊN_SECRET> }}` — KHÔNG hardcode
 
 ### Trên GitHub
 
-- [ ]  Tạo Secrets trong Settings → Secrets and variables → Actions
-- [ ]  Push workflow, mở tab Actions, đợi test xanh
+- [ ]  Tạo Secrets trong Settings → Secrets and variables → Actions:
+  - `RENDER_DEPLOY_HOOK` (secret) = URL Deploy Hook lấy từ Render dashboard
+  - `PUBLIC_URL` (variable) = `https://day12-agent-ohe1.onrender.com`
+- [X]  Push workflow, mở tab Actions, đợi test xanh
 
 ### Badge
 
-- [ ]  Thêm dòng badge vào đầu `README.md`:
-  `![CI](https://github.com/<user>/<repo>/actions/workflows/ci.yml/badge.svg)`
-- [ ]  Thay `<user>`/`<repo>` bằng giá trị thật, push lên, badge hiện `passing`
+- [X]  Thêm dòng badge vào đầu `README.md`:
+  `![CI](https://github.com/binh39/K3-DAY12-2A202601091-NguyenDinhBinh/actions/workflows/ci.yml/badge.svg)`
+- [X]  Thay `<user>`/`<repo>` bằng giá trị thật, push lên, badge hiện `passing`
+  - ⚠️ Hiện badge đang **failing** vì thiếu `RENDER_DEPLOY_HOOK` + `PUBLIC_URL` → set xong rồi re-run workflow là xanh
 
 ### Kiểm tra
 
-- [ ]  `pytest tests/test_bonus_cicd.py -v` → pass
-- [ ]  **Commit:** `"BONUS: CI/CD GitHub Actions"`
+- [X]  `pytest tests/test_bonus_cicd.py -v` → 12/13 pass (chỉ `test_badge_bao_passing` cần workflow chạy xanh)
+- [X]  **Commit:** `"BONUS: CI/CD GitHub Actions"`
 
 ---
 
