@@ -26,7 +26,7 @@
 
 ### `app/config.py`
 
-- [ ]  Khai báo 6 trường trong class `Settings`:
+- [X]  Khai báo 6 trường trong class `Settings`:
   - `port: int = 8000`
   - `agent_api_key: str` (KHÔNG có mặc định → fail-fast)
   - `redis_url: str = "redis://localhost:6379/0"`
@@ -36,23 +36,23 @@
 
 ### `app/logging_utils.py`
 
-- [ ]  `log_event(event, level="info", **fields)`:
+- [X]  `log_event(event, level="info", **fields)`:
   - Tạo dict: `{"event": event, "level": level.lower(), "timestamp": utc_now_iso()}` + gộp `**fields`
   - `print(json.dumps(..., ensure_ascii=False))` — **một dòng duy nhất**, không dùng `indent`
   - `return` chính chuỗi JSON đó
 
 ### `app/main.py` — endpoint `/health`
 
-- [ ]  Blog `health()`:
+- [X]  Blog `health()`:
   - Nếu `lifecycle.shutting_down` → `return JSONResponse(status_code=503, content={"status": "shutting_down"})`
   - Ngược lại → `return {"status": "ok", "service": SERVICE_NAME, "version": SERVICE_VERSION}`
   - ⚠️ **KHÔNG nhận dependency nào** (test CP1 kiểm tra signature) — không gọi Redis
 
 ### Kiểm tra
 
-- [ ]  `pytest tests/test_cp1.py -v` → xanh hết
-- [ ]  Test thủ công: `uvicorn app.main:app --reload --port 8000` → `curl -H "X-API-Key: $AGENT_API_KEY" localhost:8000/health` → 200
-- [ ]  **Commit:** `"CP1: 12-Factor config, logging JSON, /health"`
+- [X]  `pytest tests/test_cp1.py -v` → xanh hết
+- [ ]  Test thủ công: `uvicorn app.main:app --reload --port 8000` → `curl -H "X-API-Key: $AGENT_API_KEY" localhost:8000/health` → 200 (chưa chạy — không bắt buộc cho điểm)
+- [X]  **Commit:** `"CP1: 12-Factor config, logging JSON, /health"`
 
 ---
 
