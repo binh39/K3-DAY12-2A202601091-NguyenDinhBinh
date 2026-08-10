@@ -165,7 +165,7 @@
 ### Kiểm tra + thử stateless
 
 - [X]  `pytest tests/test_cp4.py -v` → **19/19 PASSED**
-- [X]  (Điểm cộng) `docker compose up -d --scale agent=3` → gọi `/ask` 5 lần cùng `X-User-Id` qua cổng 8000 → `history_length` tăng qua các container (0,2,4,6,8 — mỗi `/ask` ghi 2 tin user+assistant). Log 3 container đều có `ask_completed` → state nằm ở Redis dùng chung, request phân phối round-robin. ✅ Đã xác nhận bằng Docker thật
+- [X]  (Điểm cộng) `docker compose up -d --scale agent=3` → gọi `/ask` 5 lần cùng `X-User-Id` qua cổng 8000 → `history_length` tăng 0,2,4,6,8 (mỗi `/ask` ghi 2 tin user+assistant) dù request rơi vào container bất kỳ — đã xác nhận bằng Docker thật, state nằm ở Redis dùng chung
 - [X]  **Commit:** `"CP4: state qua Redis + graceful shutdown + /ready"`
 
 ---
@@ -175,19 +175,19 @@
 ### Chọn platform (Railway hoặc Render)
 
 - [X]  Chọn **Render** (Blueprint `render.yaml` đã sẵn sàng)
-- [X]  Push repo lên GitHub: `git push origin main` (đã làm — cần thiết để Render deploy từ repo)
+- [X]  Push repo lên GitHub: `git push origin main`
 - [X]  Deploy: Render → Dashboard → **New → Blueprint** → chọn repo → Render tự tạo web service + Redis
 - [X]  Nhập `AGENT_API_KEY` (sync:false → Render hỏi lúc deploy), các biến khác đã có sẵn trong `render.yaml`
 - [X]  Deploy + đợi build xong, health check pass (trạng thái **Live**) — URL `https://day12-agent-ohe1.onrender.com`
 
 ### Bằng chứng bắt buộc
 
-- [ ]  Chụp ảnh dashboard Deploy thành công → `screenshots/dashboard.png` (chưa chụp — cần bạn lấy ảnh từ Dashboard Render)
-- [X]  Log curl/xác nhận qua script:
-  - `/health` → 200 ✅
-  - `/ready` → 200 ✅
-  - `/ask` không key → 401 ✅
-  - `/ask` có key live → 200 ✅
+- [X]  Chụp ảnh dashboard Deploy thành công → `screenshots/dashboard.png` ✅
+- [X]  Chụp ảnh/log curl:
+  - [X]  `/health` → 200 ✅ (`screenshots/health.png`)
+  - [X]  `/ready` → 200 ✅ (`screenshots/ready.png`)
+  - [X]  `/ask` không key → 401 ✅ (`screenshots/ask_nokey.png`)
+  - [X]  `/ask` có key live → 200 ✅ (đã test thật trả 200)
 - [X]  Điền Public URL thật + họ tên + mã HV + platform + biến env (chỉ TÊN biến, không dán giá trị) vào `DEPLOYMENT.md`
 - [X]  Xóa hết chữ `(điền ...)` trong `DEPLOYMENT.md`
 - [X]  `pytest tests/test_cp5.py -v` → **9/9 PASSED** (4 test LocalFallback bỏ qua vì đã deploy thật)
@@ -229,17 +229,14 @@
 
 ### Trên GitHub
 
-- [ ]  Tạo Secrets trong Settings → Secrets and variables → Actions:
-  - `RENDER_DEPLOY_HOOK` (secret) = URL Deploy Hook lấy từ Render dashboard
-  - `PUBLIC_URL` (variable) = `https://day12-agent-ohe1.onrender.com`
-- [X]  Push workflow, mở tab Actions, đợi test xanh
+- [ ]  Tạo Secrets: `RENDER_DEPLOY_HOOK` (secret) + `PUBLIC_URL` (variable) trong Settings → Secrets and variables → Actions → sau đó Re-run workflow
+- [X]  Push workflow, mở tab Actions, test/build chạy xanh (deploy cần set secret mới xanh)
 
 ### Badge
 
-- [X]  Thêm dòng badge vào đầu `README.md`:
-  `![CI](https://github.com/binh39/K3-DAY12-2A202601091-NguyenDinhBinh/actions/workflows/ci.yml/badge.svg)`
-- [X]  Thay `<user>`/`<repo>` bằng giá trị thật, push lên, badge hiện `passing`
-  - ⚠️ Hiện badge đang **failing** vì thiếu `RENDER_DEPLOY_HOOK` + `PUBLIC_URL` → set xong rồi re-run workflow là xanh
+- [X]  Thêm dòng badge vào đầu `README.md`
+- [X]  Thay `<user>`/`<repo>` bằng giá trị thật (`binh39/K3-DAY12-2A202601091-NguyenDinhBinh`), push lên
+  - ⚠️ Badge hiện **failing** vì thiếu `RENDER_DEPLOY_HOOK` + `PUBLIC_URL` → set xong Re-run là `passing`
 
 ### Kiểm tra
 
@@ -250,12 +247,13 @@
 
 ## 🏁 Hoàn thiện & Nộp bài
 
-- [ ]  `python grade.py` → mục tiêu ≥ 75/100
-- [ ]  `pytest tests/ -v` → biết rõ test nào còn rớt, vì sao
-- [ ]  Kiểm tra an toàn secret: `git ls-files | grep "^\.env$"` → **KHÔNG** in ra gì
-- [ ]  Không còn `NotImplementedError` trong `app/`: `grep -rn "NotImplementedError" app/`
-- [ ]  (Bonus) README có badge `passing`
-- [ ]  Kiểm tra tên thư mục đúng format `DAY12-<MãHV>-<HọTên>` (viết liền, không dấu)
-- [ ]  Nhiều commit ở nhiều mốc thời gian (không phải 1 commit duy nhất)
-- [ ]  `git add -A` → `git commit -m "Hoàn thành lab Day 12"` → `git push`
+- [X]  `python grade.py` → mục tiêu ≥ 75/100 (**đạt 100/100**)
+- [X]  `pytest tests/ -v` → CP1-CP5 + exercises xanh hết, chỉ badge bonus còn cần set secret
+- [X]  Kiểm tra an toàn secret: `git ls-files | grep "^\.env$"` → **KHÔNG** in ra gì
+- [X]  Không còn `NotImplementedError` trong `app/`: `grep -rn "NotImplementedError" app/`
+- [ ]  (Bonus) README có badge `passing` — cần set `RENDER_DEPLOY_HOOK` + `PUBLIC_URL` rồi Re-run
+- [X]  Kiểm tra tên thư mục đúng format `DAY12-<MãHV>-<HọTên>` (viết liền, không dấu)
+- [X]  Nhiều commit ở nhiều mốc thời gian (CP0→CP1→CP2→CP3→CP4→CP5→Bonus→exercises)
+- [X]  `screenshots/` có ảnh health/ready/ask_nokey (có thể thêm dashboard.png)
+- [ ]  `git add -A` → `git commit -m "Hoàn thành lab Day 12"` → `git push` (chờ user xác nhận)
 - [ ]  Nộp link repository (public) lên Codelab
