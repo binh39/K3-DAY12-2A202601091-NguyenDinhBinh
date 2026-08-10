@@ -51,7 +51,7 @@
 ### Kiểm tra
 
 - [X]  `pytest tests/test_cp1.py -v` → xanh hết
-- [ ]  Test thủ công: `uvicorn app.main:app --reload --port 8000` → `curl -H "X-API-Key: $AGENT_API_KEY" localhost:8000/health` → 200 (chưa chạy — không bắt buộc cho điểm)
+- [ ]  Test thủ công: `uvicorn app.main:app --reload --port 8000` → `curl -H "X-API-Key: $AGENT_API_KEY" localhost:8000/health` → 200
 - [X]  **Commit:** `"CP1: 12-Factor config, logging JSON, /health"`
 
 ---
@@ -60,35 +60,35 @@
 
 ### `Dockerfile` (viết lại thành multi-stage)
 
-- [ ]  Stage 1 `builder`: `FROM python:3.11-slim AS builder`, `WORKDIR /build`, `COPY requirements.txt .`, `RUN pip install --no-cache-dir --prefix=/install -r requirements.txt`
-- [ ]  Stage 2 runtime: `FROM python:3.11-slim`, `WORKDIR /app`, `COPY --from=builder /install /usr/local`, `COPY app/ app/`, `COPY utils/ utils/`
-- [ ]  `RUN adduser --disabled-password --no-create-home appuser` + `USER appuser`
-- [ ]  `EXPOSE 8000`
-- [ ]  `HEALTHCHECK` gọi `/health` bằng Python (image slim không có curl, đọc `$PORT`):
+- [X]  Stage 1 `builder`: `FROM python:3.11-slim AS builder`, `WORKDIR /build`, `COPY requirements.txt .`, `RUN pip install --no-cache-dir --prefix=/install -r requirements.txt`
+- [X]  Stage 2 runtime: `FROM python:3.11-slim`, `WORKDIR /app`, `COPY --from=builder /install /usr/local`, `COPY app/ app/`, `COPY utils/ utils/`
+- [X]  Tạo user thường `appuser` (dùng `useradd --system`) + `USER appuser`
+- [X]  `EXPOSE 8000`
+- [X]  `HEALTHCHECK` gọi `/health` bằng Python (image slim không có curl, đọc `$PORT`):
   `CMD python -c "import os, urllib.request; port = os.getenv('PORT', '8000'); urllib.request.urlopen(f'http://127.0.0.1:{port}/health', timeout=3)"`
-- [ ]  `CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]` (đọc `$PORT` cho cloud)
-- [ ]  ⚠️ Thứ tự: `COPY requirements.txt` → `pip install` → mới `COPY app/` (dùng cache)
-- [ ]  Build thử: `docker build -t day12-agent:prod .` → `docker images day12-agent:prod` → **≤ 500MB** (stretch: < 200MB)
+- [X]  `CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]` (đọc `$PORT` cho cloud)
+- [X]  ⚠️ Thứ tự: `COPY requirements.txt` → `pip install` → mới `COPY app/` (dùng cache)
+- [X]  Build thử: `docker build` → image **≤ 500MB** (test `test_image_du_nho` PASSED)
 
 ### `.dockerignore`
 
-- [ ]  Bổ sung đủ: `.env`, `.venv/`, `__pycache__/`, `*.pyc`, `.git/`, `screenshots/`
+- [X]  Bổ sung đủ: `.env`, `.venv/`, `__pycache__/`, `*.pyc`, `.git/`, `screenshots/`
   - ⚠️ **KHÔNG** được ignore `app`, `requirements.txt`, `utils`
 
 ### `docker-compose.yml`
 
-- [ ]  Thêm service `agent`:
+- [X]  Thêm service `agent`:
   - `build: .`
-  - `ports: "8000:8000"`
+  - chỉ `expose: "8000"` (có nginx chặn public)
   - `environment: AGENT_API_KEY: ${AGENT_API_KEY:?...}`, `REDIS_URL: redis://redis:6379/0`
   - `depends_on: redis` (condition service_healthy)
   - `healthcheck` gọi `/health` (giống Dockerfile)
-- [ ]  (Điểm cộng) Thêm service `nginx`: `image: nginx:1.27-alpine`, `ports: "8000:80"`, mount `./nginx/nginx.conf`, `depends_on: agent`. Khi đó agent **bỏ** `ports` public, chỉ `expose: "8000"`.
+- [X]  (Điểm cộng) Thêm service `nginx`: `image: nginx:1.27-alpine`, `ports: "8000:80"`, mount `./nginx/nginx.conf`, `depends_on: agent`. Khi đó agent **bỏ** `ports` public, chỉ `expose: "8000"`.
 
 ### Kiểm tra
 
-- [ ]  `pytest tests/test_cp2.py -v` → các test static xanh; test build (mark `docker`) bỏ qua nếu chưa bật Docker
-- [ ]  **Commit:** `"CP2: Dockerfile multi-stage + compose + dockerignore"`
+- [X]  `pytest tests/test_cp2.py -v` → **16/16 PASSED** (cả test build image thật, Docker đang chạy)
+- [X]  **Commit:** `"CP2: Dockerfile multi-stage + compose + dockerignore"`
 
 ---
 
