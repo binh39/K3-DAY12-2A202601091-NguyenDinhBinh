@@ -176,30 +176,27 @@
 
 - [X]  Chọn **Render** (Blueprint `render.yaml` đã sẵn sàng)
 - [X]  Push repo lên GitHub: `git push origin main` (đã làm — cần thiết để Render deploy từ repo)
-- [ ]  Deploy: Render → Dashboard → **New → Blueprint** → chọn repo → Render tự tạo web service + Redis
-- [ ]  Nhập `AGENT_API_KEY` (sync:false → Render hỏi lúc deploy), các biến khác đã có sẵn trong `render.yaml`
-- [ ]  Deploy + đợi build xong, health check pass (trạng thái **Live**)
+- [X]  Deploy: Render → Dashboard → **New → Blueprint** → chọn repo → Render tự tạo web service + Redis
+- [X]  Nhập `AGENT_API_KEY` (sync:false → Render hỏi lúc deploy), các biến khác đã có sẵn trong `render.yaml`
+- [X]  Deploy + đợi build xong, health check pass (trạng thái **Live**) — URL `https://day12-agent-ohe1.onrender.com`
 
 ### Bằng chứng bắt buộc
 
-- [ ]  Chụp ảnh dashboard Deploy thành công → `screenshots/dashboard.png`
-- [ ]  Chụp ảnh/log curl:
-  - `/health` → 200
-  - `/ready` → 200
-  - `/ask` không key → 401
-  - `/ask` có key live → 200
-- [ ]  Điền Public URL thật + họ tên + mã HV + platform + biến env (chỉ TÊN biến, không dán giá trị) vào `DEPLOYMENT.md`
-- [ ]  Xóa hết chữ `(điền ...)` trong `DEPLOYMENT.md`
-- [ ]  `pytest tests/test_cp5.py -v` → pass
+- [ ]  Chụp ảnh dashboard Deploy thành công → `screenshots/dashboard.png` (chưa chụp — cần bạn lấy ảnh từ Dashboard Render)
+- [X]  Log curl/xác nhận qua script:
+  - `/health` → 200 ✅
+  - `/ready` → 200 ✅
+  - `/ask` không key → 401 ✅
+  - `/ask` có key live → 200 ✅
+- [X]  Điền Public URL thật + họ tên + mã HV + platform + biến env (chỉ TÊN biến, không dán giá trị) vào `DEPLOYMENT.md`
+- [X]  Xóa hết chữ `(điền ...)` trong `DEPLOYMENT.md`
+- [X]  `pytest tests/test_cp5.py -v` → **9/9 PASSED** (4 test LocalFallback bỏ qua vì đã deploy thật)
 
 ### Nếu không deploy được lên cloud (Local Fallback, tối đa 9/15đ)
 
-- [ ]  Đặt `LOCAL_FALLBACK=true` trong `.env`
-- [ ]  `docker compose up -d` → chụp `docker compose ps`
-- [ ]  Chụp terminal gọi `/health`, `/ready`, `/ask` → `screenshots/`
-- [ ]  Ghi rõ lý do vào `DEPLOYMENT.md`
-- [ ]  `pytest tests/test_cp5.py -v` → bộ test tự chuyển sang `localhost:8000`
-- [ ]  **Commit:** `"CP5: deploy lên cloud + evidence"`
+> Không dùng — đã deploy thật lên Render thành công.
+
+- [X]  **Commit:** `"CP5: deploy lên cloud + evidence"`
 
 ---
 

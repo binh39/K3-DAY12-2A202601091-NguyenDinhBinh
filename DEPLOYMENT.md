@@ -10,17 +10,17 @@
 
 | Mục | Nội dung |
 |-----|----------|
-| Họ và tên | (điền họ tên) |
-| Mã học viên | (điền mã học viên) |
+| Họ và tên | Nguyễn Đình Bình |
+| Mã học viên | 2A202601091 |
 | Repo | https://github.com/binh39/K3-DAY12-2A202601091-NguyenDinhBinh |
 
 ## Service
 
 | Mục | Nội dung |
 |-----|----------|
-| Public URL | https://day12-agent.onrender.com |
+| Public URL | https://day12-agent-ohe1.onrender.com |
 | Platform | Render (Blueprint từ `render.yaml`) |
-| Ngày deploy | (điền ngày) |
+| Ngày deploy | 10/8/2026 |
 
 ## Biến Môi Trường Đã Set Trên Cloud
 
@@ -70,10 +70,20 @@ done; echo
 
 ## Kết Quả Chạy Thật
 
-Dán output của các lệnh trên vào đây:
+Output các lệnh kiểm tra trên URL thật `https://day12-agent-ohe1.onrender.com`:
 
 ```
-(điền output)
+# 1. /health → 200
+{"status":"ok","service":"day12-agent","version":"1.0.0"}
+
+# 2. /ready → 200 (Redis đã nối)
+{"status":"ready","redis":true}
+
+# 3. /ask không key → 401
+{"detail":"invalid or missing API key"}
+
+# 4. /ask có key → 200 kèm câu trả lời
+{"answer":"...","user_id":"sv-cp5","history_length":0,"cost_usd":2.265e-05}
 ```
 
 ## Ảnh Chụp Màn Hình
@@ -85,17 +95,4 @@ Dán output của các lệnh trên vào đây:
 
 ---
 
-## Nếu Dùng Phương Án Dự Phòng
-
-Không đăng ký được tài khoản cloud? Vẫn nộp được bài, nhưng CP5 tối đa 60% điểm:
-
-1. Đặt `LOCAL_FALLBACK=true` trong `.env`
-2. Chạy `docker compose up -d` rồi kiểm tra `docker compose ps`
-3. Chụp màn hình vào `screenshots/`
-4. Chạy `pytest tests/test_cp5.py -v` — bộ test sẽ tự chuyển sang kiểm tra
-   `http://localhost:8000`
-5. Ghi rõ lý do không deploy được vào phần dưới đây:
-
-```
-(điền lý do nếu dùng phương án dự phòng, ngược lại xóa mục này)
-```
+*Đã deploy thật lên Render — không dùng phương án dự phòng.*
