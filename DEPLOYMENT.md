@@ -12,14 +12,14 @@
 |-----|----------|
 | Họ và tên | (điền họ tên) |
 | Mã học viên | (điền mã học viên) |
-| Repo | (điền link repo DAY12-...) |
+| Repo | https://github.com/binh39/K3-DAY12-2A202601091-NguyenDinhBinh |
 
 ## Service
 
 | Mục | Nội dung |
 |-----|----------|
-| Public URL | https://TODO-thay-bang-url-that.up.railway.app |
-| Platform | Railway / Render / Cloud Run — (điền platform bạn dùng) |
+| Public URL | https://day12-agent.onrender.com |
+| Platform | Render (Blueprint từ `render.yaml`) |
 | Ngày deploy | (điền ngày) |
 
 ## Biến Môi Trường Đã Set Trên Cloud
@@ -30,7 +30,7 @@ Ghi tên biến và **nguồn giá trị**, không ghi giá trị:
 |------|--------|---------|
 | `PORT` | ✅ | platform tự gán |
 | `AGENT_API_KEY` | ✅ | đặt trong dashboard, không nằm trong repo |
-| `REDIS_URL` | ✅ | (điền: Redis add-on của platform / Upstash / ...) |
+| `REDIS_URL` | ✅ | Render Redis instance tạo bởi Blueprint (`render.yaml` → service `day12-redis`) |
 | `RATE_LIMIT_PER_MINUTE` | ✅ | 10 |
 | `MONTHLY_BUDGET_USD` | ✅ | 10.0 |
 | `LOG_LEVEL` | ✅ | INFO |

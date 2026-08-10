@@ -174,9 +174,11 @@
 
 ### Chọn platform (Railway hoặc Render)
 
-- [ ]  Đăng ký tài khoản, tạo project, kết nối repo GitHub
-- [ ]  Set biến môi trường trên cloud: `AGENT_API_KEY`, `REDIS_URL` (trỏ Redis add-on), các biến còn lại như `.env`
-- [ ]  Deploy + đợi build xong, health check pass
+- [X]  Chọn **Render** (Blueprint `render.yaml` đã sẵn sàng)
+- [X]  Push repo lên GitHub: `git push origin main` (đã làm — cần thiết để Render deploy từ repo)
+- [ ]  Deploy: Render → Dashboard → **New → Blueprint** → chọn repo → Render tự tạo web service + Redis
+- [ ]  Nhập `AGENT_API_KEY` (sync:false → Render hỏi lúc deploy), các biến khác đã có sẵn trong `render.yaml`
+- [ ]  Deploy + đợi build xong, health check pass (trạng thái **Live**)
 
 ### Bằng chứng bắt buộc
 
